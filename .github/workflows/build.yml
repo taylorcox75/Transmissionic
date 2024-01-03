@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - taylorcox75-patch-1
 
   workflow_dispatch:
 
@@ -45,46 +45,6 @@ jobs:
           tag_name: v${{steps.version.outputs.prop}}
           draft: true
           prerelease: false
-
-  build-webui:
-    name: Build WebUI
-    needs: dependencies
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Pre-build
-        run: npm run-script prebuild:webui
-
-      - name: Build
-        run: npm run build --prod
-
-      - name: Post-build
-        run: npm run-script postbuild:webui
-
-      - name: Create zip
-        run: |
-          mv ./dist/ ./web/
-          zip -r release.zip ./web/
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.dependencies.outputs.upload_url }}
-          asset_path: ./release.zip
-          asset_name: Transmissionic-webui-${{ needs.dependencies.outputs.version }}.zip
-          asset_content_type: application/zip
   build-ios:
     name: Build iOS
     needs: dependencies
@@ -120,12 +80,9 @@ jobs:
           mv ~/Library/Developer/Xcode/DerivedData/App-*/Build/Products/Release-iphoneos/App.app Payload
           zip -r app.ipa Payload
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload SideStore.ipa Artifact
+        uses: actions/upload-artifact@v3.1.0
         with:
-          upload_url: ${{ needs.dependencies.outputs.upload_url }}
-          asset_path: ./ios/App/app.ipa
-          asset_name: Transmissionic-ios-${{ needs.dependencies.outputs.version }}.ipa
-          asset_content_type: application/zip
+          name: transmissionic.ipa
+          path: ./ios/App/app.ipa
+
