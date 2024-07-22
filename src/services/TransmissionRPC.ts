@@ -39,7 +39,7 @@ class TRPC {
     this.options = {
       host:'localhost',
       path:'/transmission/rpc',
-      port:9091,
+      port:"",
       https:false,
       timeout:timeout
     };
@@ -569,6 +569,9 @@ class TRPC {
   getRequestUrl(): string {
     let result = this.options.https ? "https":"http";
     result += "://"+this.options.host+":"+this.options.port+this.options.path;
+    if(this.options.port==""){
+      result = result.replace(/:\d{4}/,"")
+    }
     return result;
   }
 
